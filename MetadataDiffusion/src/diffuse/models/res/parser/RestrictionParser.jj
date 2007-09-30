@@ -1,0 +1,121 @@
+
+
+PARSER_BEGIN(RestrictionParser)
+
+package lessonMapper.diffusion.heap.res.parser;
+
+import java.io.StringReader;
+
+
+
+public class RestrictionParser {
+
+ // private static int count=0;
+
+}
+
+PARSER_END(RestrictionParser)
+
+SKIP :
+{
+  " "
+| "\t"
+| "\n"
+| "\r"
+}
+
+TOKEN :
+{
+
+  < MAX: "MAX">
+|
+  < MIN: "MIN">
+|
+  < UNION: "UNION">
+|
+  < INTERSECTION: "INTERSECTION">
+|
+   < INFEQ: "INFEQ">
+ |
+   < SUPEQ: "SUPEQ">
+ |
+   < CONTAINS: "CONTAINS">
+ |
+   < CONTAINED: "CONTAINED">
+ |
+  < STRING: ["a"-"z","A"-"Z","_"] ( ["a"-"z","A"-"Z","_","0"-"9"] )* >
+|
+  < ATT_ID: ["a"-"z","A"-"Z","_"] ( ["a"-"z","A"-"Z","_","/","0"-"9"] )* >
+|
+  < NUM:  (["0"-"9"])+ >
+
+}
+
+
+void Parse(ResRuleBuilder aBuilder) :
+{
+   
+}
+{
+   RestrictionOperator(aBuilder) FusionOperator(aBuilder)  <EOF>
+}
+
+
+void RestrictionOperator(ResRuleBuilder aBuilder) :
+{
+}
+{
+   <INFEQ>{aBuilder.setRestrictionOperator(lessonMapper.diffusion.heap.res.rules.ResRule.INFEQ);}
+  |
+   <SUPEQ>{aBuilder.setRestrictionOperator(lessonMapper.diffusion.heap.res.rules.ResRule.SUPEQ);}
+  |
+   <CONTAINS> {aBuilder.setRestrictionOperator(lessonMapper.diffusion.heap.res.rules.ResRule.CONTAINS);}
+  |
+   <CONTAINED>{aBuilder.setRestrictionOperator(lessonMapper.diffusion.heap.res.rules.ResRule.CONTAINED);}
+   
+}
+
+void FusionOperator(ResRuleBuilder aBuilder) :
+{
+}
+{
+   <MIN>{aBuilder.setFusionOperator( lessonMapper.diffusion.heap.res.rules.ResRule.MIN);}
+  |
+   <MAX>{aBuilder.setFusionOperator( lessonMapper.diffusion.heap.res.rules.ResRule.MAX);}
+  |
+   <UNION> {aBuilder.setFusionOperator( lessonMapper.diffusion.heap.res.rules.ResRule.UNION);}
+  |
+   <INTERSECTION>{aBuilder.setFusionOperator( lessonMapper.diffusion.heap.res.rules.ResRule.INTERSECTION);}
+  |
+  "'"String(aBuilder)"'" {aBuilder.setFusionOperator(lessonMapper.diffusion.heap.res.rules.ResRule.VALUE);  }
+}
+
+
+
+void String(ResRuleBuilder aBuilder) :
+{
+ //Token id;
+ String theString;
+}
+{
+	
+  //id=<STRING>  (id=<STRING>)* ("," String(aBuilder))* { aBuilder.addValue(id.image); }
+  theString=Sentence() ("," String(aBuilder))* { 
+  	aBuilder.addValue(theString); }
+}
+
+String Sentence():
+{
+	Token id;
+	String theString=null;
+}
+{
+   	id=<STRING> (theString=Sentence())? { 
+   		String theNewString = id.image;
+   		if(theString!=null) theNewString = theNewString + " " +theString;
+   		return  theNewString;}
+}
+
+
+//TODO add int management
+
