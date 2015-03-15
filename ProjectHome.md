@@ -1,0 +1,1 @@
+Framework for diffusing metadata semantics in a graph where each node is decorated by a  metadata set.
